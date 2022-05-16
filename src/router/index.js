@@ -12,8 +12,8 @@ const routes = [
     component: () => import('@/views/home/index.vue') 
   },
   { 
-    path: '/about', 
-    component: () => import('@/views/about/index.vue')  
+    path: '/edges-geo', 
+    component: () => import('@/views/edges-geo/index.vue')  
   },
   { 
     path: '/random-city', 

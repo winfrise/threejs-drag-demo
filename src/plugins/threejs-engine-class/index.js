@@ -24,25 +24,25 @@ export default class ThreejsEngine {
   
   _installPlugins() {
     const plugins = ThreejsEngine._installedPlugins
-    plugins.forEach(plugin => {
-      plugin.call(this, this)
+    plugins.forEach(([fn, args]) => {
+      fn.call(this, this, ...args)
     })
   }
   static _installedPlugins = []
   // 添加插件的方法
-  static use(plugin) {
+  static use(plugin, ...args) {
     const installedPlugins = ThreejsEngine._installedPlugins
-    if (installedPlugins.indexOf(plugin) > -1) {
-      return this
-    }
-    installedPlugins.push(plugin)
+
+    installedPlugins.push([plugin, args])
     return this
   }
   _init() {
     // 场景
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x582424);
-    this.scene.fog = new THREE.Fog(0xeeeeee, 0, 100);
+    if (this._options.fog) {
+      this.scene.fog = new THREE.Fog(0xeeeeee, 0, 100);
+    }
 
     // WebGLRenderer
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -136,6 +136,7 @@ export default class ThreejsEngine {
             mesh.position.set(0, 0, 0);
             mesh.scale.set(1, 1, 1);
             this.scene.add(mesh);
+            this.emit('modelLoaded')
         }, 
         res => {
             if (Number((res.loaded / res.total * 100).toFixed(0)) === 100) {
@@ -145,8 +146,6 @@ export default class ThreejsEngine {
                 { x: 0, y: 10, z: 20 }, { x: 0, y: 0, z: 0 }, 4000, () => { }
                 );
             }
-            // TODO:加载状态
-            // _this.setState({ loadingProcess: Math.floor(res.loaded / res.total * 100) });
         }, 
         err => {
             console.log(err);
